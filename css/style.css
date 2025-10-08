@@ -5,6 +5,8 @@ body {
 .card {
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(22, 27, 34, 0.06);
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .color-dot {
@@ -25,4 +27,4 @@ body {
 .small-muted {
     font-size: 0.88rem;
     color: #6c757d;
-}
+}   
