@@ -50,7 +50,6 @@
   </div>
 
   <script>
-    // Lấy param hour từ URL
     function getParam(name) {
       const params = new URLSearchParams(window.location.search);
       return params.get(name);
@@ -58,7 +57,6 @@
 
     const hourParam = getParam("hour");
 
-    // submit form
     document.getElementById("eventForm").addEventListener("submit", e => {
       e.preventDefault();
       const title = document.getElementById("title").value.trim();
@@ -66,11 +64,9 @@
         alert("Nhập tiêu đề sự kiện");
         return;
       }
-      // Lưu đơn giản: key = "task_" + hourParam ; value = title
       if (hourParam) {
         localStorage.setItem("task_" + hourParam, title);
       }
-      // trở lại index
       window.location.href = "index.html";
     });
 

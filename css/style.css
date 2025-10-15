@@ -8,7 +8,6 @@ body {
     padding-left: 0;
     padding-right: 0;
 }
-
 .color-dot {
     width: 18px;
     height: 18px;
@@ -27,4 +26,12 @@ body {
 .small-muted {
     font-size: 0.88rem;
     color: #6c757d;
-}   
+}
+
+.list-group-item {
+    cursor: pointer;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+}
