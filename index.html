@@ -8,38 +8,39 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand fw-bold">
           <img
-            src="data:image/png;base64,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"
+            src="https://icons.veryicon.com/png/o/business/time-management/calendar-337.png"
             alt="logo"
             width="50"
             height="50"
-            class="d-inline-block align-text-top me-2"
+            class="d-inline-block me-2"
           />
           My Calendar
         </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <a id="login-btn" href="./pages/signin.html" class="nav-link fw-bold me-2"
+            >Login</a
+          >
+          <a id="logout-btn" href="./index.html" class="nav-link fw-bold me-2 hide"
+            >Logout</a
+          >
+          <a href="#weatherInfo" class="nav-link fw-bold me-2"
+            >Weather</a
+          >
+          <a href="#newsList" class="nav-link fw-bold me-2"
+            >News</a
+          >
+        </div>
       </div>
     </nav>
 
     <div class="container mt-4">
-      <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title">🌤 Thời tiết hôm nay</h5>
-          <p id="weatherInfo" class="card-text text-muted">Đang tải...</p>
-        </div>
-      </div>
-
-      <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title">📰 Tin tức nổi bật</h5>
-          <ul id="newsList" class="list-group list-group-flush"></ul>
-        </div>
-      </div>
-
       <div class="card mb-5">
         <div class="card-body">
           <h5 class="card-title mb-3">🕒 Lịch trình hôm nay</h5>
@@ -69,6 +70,19 @@
             <div class="list-group-item">11 PM</div>
             <div class="list-group-item">12 AM</div>
           </div>
+        </div>
+      </div>
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">🌤 Thời tiết hôm nay</h5>
+          <p id="weatherInfo" class="card-text text-muted">Đang tải...</p>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">📰 Tin tức nổi bật</h5>
+          <ul id="newsList" class="list-group list-group-flush"></ul>
         </div>
       </div>
     </div>
@@ -107,5 +121,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/index.js"></script>
+    <script src="./js/nav.js"></script>
   </body>
 </html>

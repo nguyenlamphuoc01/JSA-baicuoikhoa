@@ -17,7 +17,7 @@ async function loadWeather() {
 loadWeather();
 
 async function loadNews() {
-  const apiKey = "pub_fec16eed290148a490568dc4d7a077f2";
+  const apiKey = "fbde4352a14b45269d40b21fcd5f55ec";
   try {
     const res = await fetch(
       `https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=${apiKey}`
