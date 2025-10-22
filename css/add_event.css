@@ -1,0 +1,23 @@
+body {
+    background: #f4f6f8;
+}
+.card {
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(22, 27, 34, 0.06);
+}
+.color-dot {
+    width: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+.color-dot.selected {
+    border-color: #00000022;
+    transform: scale(1.08);
+}
+.small-muted {
+    font-size: 0.88rem;
+    color: #6c757d;
+}
