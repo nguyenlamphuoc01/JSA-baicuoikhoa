@@ -1,109 +1,112 @@
-const loginForm = document.getElementById("loginForm");
-const signupForm = document.getElementById("signupForm");
-const showLoginFormBtn = document.getElementById("showLoginFormBtn");
-const showSignupFormBtn = document.getElementById("showSignupFormBtn");
+import { auth, db } from "./firebase_config.js";
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  or,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { User } from "./entities.js";
 
-function changeForm(isLogin) {
-  if (isLogin) {
-    loginForm.classList.add("d-block");
-    signupForm.classList.remove("d-block");
-    signupForm.classList.add("d-none");
-    loginForm.classList.remove("d-none");
-  } else {
-    loginForm.classList.add("d-none");
-    loginForm.classList.remove("d-block");
-    signupForm.classList.remove("d-none");
-    signupForm.classList.add("d-block");
-  }
-}
+// =================================================
+// login
 
-showSignupFormBtn.addEventListener("click", function () {
-  this.classList.add("btn-primary");
-  this.classList.remove("btn-outline-primary");
-
-  showLoginFormBtn.classList.add("btn-outline-primary");
-  showLoginFormBtn.classList.remove("btn-primary");
-
-  changeForm(false);
-});
-
-showLoginFormBtn.addEventListener("click", function () {
-  this.classList.add("btn-primary");
-  this.classList.remove("btn-outline-primary");
-
-  showSignupFormBtn.classList.add("btn-outline-primary");
-  showSignupFormBtn.classList.remove("btn-primary");
-  changeForm(true);
-});
-
-function validateSignupForm(email, username, password) {
-  if (username.length < 5) {
-    alert("Username must be at least 5 characters long.");
+// =================================================
+// signup
+const signupForm = document.getElementById("signup-form");
+function validateSignupForm(email, username, password, confirmPassword) {
+  // username >= 6 + no space
+  if (username.length < 6) {
+    alert("Tên người dùng phải có 6 kí tự trở lên.");
     return false;
   }
-  if (password.length < 5) {
-    alert("Password must be at least 5 characters long.");
+  if (username.includes(" ")) {
+    alert("Tên người dùng không được dùng dấu cách");
+    return false;
+  }
+  // pass >= 6
+  if (password < 6) {
+    alert("Mật khẩu phải cókhẩuí tự trở lên.");
+    return false;
+  }
+  // pass == confirmpass
+  if (password !== confirmPassword) {
+    alert("Mật khẩu không trùng khớp với trường nhập lại.");
     return false;
   }
   return true;
 }
 
-function isEmailRegistered(email) {
-  if (localStorage.getItem(email) !== null) {
-    alert("Email is already registered. Please use a different email.");
-    return true;
-  }
-  return false;
-}
+signupForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  // ---------------------------------------
+  // validate form
+  const username = document.getElementById("signupUsername");
+  const email = document.getElementById("signupEmail");
+  const password = document.getElementById("signupPassword");
+  const confirmPassword = document.getElementById("signupConfirmPassword");
+  if (
+    validateSignupForm(
+      username.value,
+      email.value,
+      password.value,
+      confirmPassword.value
+    )
+  ) {
+    // --------------------------------------
+    // kiem tra khong duoc trung email + username cu
+    // su dung cau lenh query de lay du lieu user co email/ username trung lap
+    const q = query(
+      collection(db, "users"),
+      or(
+        where("username", "==", username.value),
+        where("email", "==", email.value)
+      )
+    );
+    let isDuplicated = false;
+    const querySnapshot = await getDocs(q);
 
-function signupToLocalStorage() {
-  const email = document.getElementById("signupEmail").value;
-  const username = document.getElementById("signupUsername").value;
-  const password = document.getElementById("signupPassword").value;
-
-  const checked =
-    validateSignupForm(email, username, password) && !isEmailRegistered(email);
-  if (checked == true) {
-    localStorage.setItem(email, password);
-
-    alert("Registration successful! You can now log in.");
-
-    changeForm(true);
-  }
-}
-
-function loginToHome() {
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-
-  if (isEmailRegistered(email)) {
-    const passwordStored = localStorage.getItem(email);
-
-    if (passwordStored === password) {
-      localStorage.setItem("currentUser", email);
-      alert("Login successful! Redirecting to home page...");
-
-      window.location.href = "../index.html";
-    } else {
-      alert("Incorrect password. Please try again.");
-      return;
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data());
+      // neu trung -> khong lam tiep
+      isDuplicated = true;
+    });
+    if (isDuplicated) {
+      alert("Email hoặc Username đã được đăng kí, vui lòng đăng nhập!");
+      return; // dung ham khong lam them
     }
-  } else {
-    alert("Email not registered. Please sign up first.");
-    return;
+
+    // --------------------------------------
+    // create account with firebase auth
+    createUserWithEmailAndPassword(auth, email.value, password.value)
+      .then(async (userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        // --------------------------------------
+        // create account with firebase firestore
+        const newUser = new User(username.value, email.value, user.uid);
+
+        // Add a new document with a generated id.
+        const docRef = await addDoc(
+          collection(db, "users"),
+          newUser.toObject()
+        );
+        console.log("Document written with ID: ", docRef.id);
+        // luu vao local storage
+        localStorage.setItem("currentUser", user.uid);
+        // thong bao dang ki thanh cong -> chuyen sang home
+        alert("Đăng kí tài khoản thành công!");
+        location.href = "../index.html";
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ...
+        console.error(errorMessage);
+      });
   }
-}
-
-document
-  .getElementById("signupForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    signupToLocalStorage();
-  });
-
-document
-  .getElementById("loginForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    loginToHome();
-  });
+});

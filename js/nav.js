@@ -1,21 +1,19 @@
-function checkLoginStatus() {
-  const loginBtn = document.getElementById("login-btn");
-  const logoutBtn = document.getElementById("logout-btn");
+document.addEventListener("DOMContentLoaded", () => {
+  checkLoginStatus();
 
-  const currentUser = localStorage.getItem("currentUser");
-
-  if (currentUser !== null) {
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "block";
-  } else {
-    loginBtn.style.display = "block";
-    logoutBtn.style.display = "none";
+  const logoutBtn = document.querySelector("#logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
   }
-}
-
-document.addEventListener("DOMContentLoaded", checkLoginStatus);
-
-document.getElementById("logout-btn").addEventListener("click", function () {
-  localStorage.removeItem("currentUser");
 });
 
+function checkLoginStatus() {
+  const user = localStorage.getItem("user");
+  const userInfo = document.querySelector(".user-info");
+  const loginBtn = document.querySelector(".login-btn");
+
+  if (!userInfo || !loginBtn) return;
+
+  userInfo.style.display = user ? "block" : "none";
+  loginBtn.style.display = user ? "none" : "block";
+}
