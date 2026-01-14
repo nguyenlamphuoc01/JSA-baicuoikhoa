@@ -7,7 +7,8 @@ body {
     box-shadow: 0 6px 18px rgba(22, 27, 34, 0.06);
     padding-left: 0;
     padding-right: 0;
-}   
+}
+
 .color-dot {
     width: 18px;
     height: 18px;
@@ -34,4 +35,67 @@ body {
 
 .list-group-item:hover {
     background-color: #f1f1f1;
+}
+
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+#timeList .list-group-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#timeList .list-group-item:hover {
+    transform: translateX(6px);
+    background-color: #e9f2ff;
+}
+
+.past {
+    opacity: 0.4;
+}
+
+.present {
+    background: linear-gradient(90deg, #0d6efd, #4dabf7);
+    color: white;
+    font-weight: bold;
+    transform: scale(1.02);
+}
+
+.future {
+    background-color: #f8f9fa;
+}
+.weather-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.weather-icon {
+    font-size: 48px;
+}
+
+.weather-temp {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.news-item {
+    transition: all 0.2s ease;
+}
+
+.news-item:hover {
+    background-color: #f1f3f5;
+    transform: scale(1.01);
+}
+
+.card {
+    border-radius: 14px;
+}
+
+.modal-content {
+    border-radius: 16px;
 }
