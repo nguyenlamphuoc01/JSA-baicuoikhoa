@@ -1,19 +1,47 @@
-document.addEventListener("DOMContentLoaded", () => {
-  checkLoginStatus();
+import { auth, db } from "./firebase_config.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import {
+  collection,
+  query,
+  where,
+  getDoc,
+  setDoc,
+  or,
+  doc,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-  const logoutBtn = document.querySelector("#logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
+let currentUserID = localStorage.getItem("currentUserID");
+const logoutBtn = document.getElementById("logout-btn");
+if (!currentUserID) {
+  // chua dang nhap
+  // chuyen sang trang signin
+  location.href = "../pages/signin.html";
+} else {
+  // da dang nhap
+  // lay ten nguoi dung hien thi (Firestore)
+  logoutBtn.textContent = await getUsername(currentUserID);
+}
+
+async function getUsername(userId) {
+  const userRef = doc(db, "users", userId);
+  const snap = await getDoc(userRef);
+
+  if (snap.exists()) {
+    const username = snap.data().username;
+    console.log("Username:", username);
+    return username;
+  } else {
+    console.log("User not found");
+    return null;
   }
-});
+}
 
-function checkLoginStatus() {
-  const user = localStorage.getItem("user");
-  const userInfo = document.querySelector(".user-info");
-  const loginBtn = document.querySelector(".login-btn");
-
-  if (!userInfo || !loginBtn) return;
-
-  userInfo.style.display = user ? "block" : "none";
-  loginBtn.style.display = user ? "none" : "block";
+logoutBtn.addEventListener("click", async () => await logout());
+async function logout() {
+  // logout Firebase Auth
+  await signOut(auth);
+  // xoa du lieu o phan local storage
+  localStorage.removeItem("currentUserID");
+  // chuyen trang login
+  location.href = "../pages/signin.html";
 }

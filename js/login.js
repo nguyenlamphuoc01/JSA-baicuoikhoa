@@ -1,13 +1,16 @@
 import { auth, db } from "./firebase_config.js";
-import { createUserWithEmailAndPassword } from
-  "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 import {
   collection,
   query,
   where,
   getDocs,
-  addDoc,
-  or
+  setDoc,
+  or,
+  doc
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { User } from "./entities.js";
 
@@ -47,17 +50,18 @@ signupForm.addEventListener("submit", async (event) => {
       email.value,
       username.value,
       password.value,
-      confirmPassword.value
+      confirmPassword.value,
     )
-  ) return;
+  )
+    return;
 
   // ---- check duplicate username / email
   const q = query(
     collection(db, "users"),
     or(
       where("username", "==", username.value),
-      where("email", "==", email.value)
-    )
+      where("email", "==", email.value),
+    ),
   );
 
   const querySnapshot = await getDocs(q);
@@ -71,22 +75,54 @@ signupForm.addEventListener("submit", async (event) => {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email.value,
-      password.value
+      password.value,
     );
 
     const user = userCredential.user;
 
     // ---- create user document (Firestore)
     const newUser = new User(username.value, email.value, user.uid);
-    await addDoc(collection(db, "users"), newUser.toObject());
-
-    localStorage.setItem("uid", user.uid);
+    await setDoc(doc(db, "users", user.uid), newUser.toObject(), {
+      merge: true,
+    });
 
     alert("Đăng kí tài khoản thành công!");
-    location.href = "../index.html";
-
+    // chuyen sang form dang nhap
+    location.reload();
   } catch (error) {
     console.error(error.message);
     alert("Đăng kí thất bại 😢");
+  }
+});
+
+// ====================== SIGNIN ======================
+const signinForm = document.getElementById("signin-form");
+signinForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const email = document.getElementById("loginEmail");
+  const password = document.getElementById("loginPassword");
+
+  // ---- dang nhap voi firebase Auth + luu du lieu hien tai vao local storage
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email.value,
+      password.value,
+    );
+
+    const user = userCredential.user;
+
+    console.log("Đăng nhập thành công:", user.uid);
+
+    // lưu userID
+    localStorage.setItem("currentUserID", user.uid);
+
+    alert("Đăng nhập tài khoản thành công!");
+    // chuyển trang / ẩn form login
+    location.href = "../index.html";
+  } catch (error) {
+    console.error(error.message);
+    alert("Email hoặc mật khẩu không đúng 😢");
   }
 });
