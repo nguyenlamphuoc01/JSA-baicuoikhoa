@@ -1,4 +1,4 @@
-import { colorCode, Task } from "./entities.js";
+import { colorCode, Task } from "./entities.js";  
 import { db } from "./firebase_config.js";
 
 const items = document.querySelectorAll("#timeList .list-group-item");
