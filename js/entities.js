@@ -24,7 +24,7 @@ class User {
 class Task {
   constructor(
     taskId,
-    created_by, // Changed from uid
+    created_by,
     taskName,
     taskDesc,
     taskLocation,
@@ -56,22 +56,19 @@ class Task {
 
   toUIHTMLTag(currentViewDate, overlapClass = "event-full") {
     const viewDate = new Date(currentViewDate);
-    viewDate.setHours(0, 0, 0, 0); // Start of the day being viewed
+    viewDate.setHours(0, 0, 0, 0);
 
     const nextDay = new Date(viewDate);
-    nextDay.setDate(viewDate.getDate() + 1); // Start of the next day (Midnight)
+    nextDay.setDate(viewDate.getDate() + 1);
 
     const taskStart = new Date(this.$startDate);
     const taskEnd = new Date(this.$endDate);
 
-    // If the task ends before this day or starts after this day, don't render it
     if (taskEnd <= viewDate || taskStart >= nextDay) return "";
 
-    // Determine the visual start/end for THIS day only
     const displayStart = taskStart < viewDate ? viewDate : taskStart;
     const displayEnd = taskEnd > nextDay ? nextDay : taskEnd;
 
-    // Calculate positions (0 to 24)
     const startHour = displayStart.getHours() + displayStart.getMinutes() / 60;
     const endHour =
       taskEnd > nextDay
@@ -82,26 +79,32 @@ class Task {
     const topPosition = startHour * hourHeight;
     const totalHeight = (endHour - startHour) * hourHeight;
 
-    // Style tweak: Add a visual indicator if the task continues
     const continuesBefore = taskStart < viewDate;
     const continuesAfter = taskEnd > nextDay;
 
     return `
-      <div class="calendar-event ${this.$colorCode} ${overlapClass}" 
-           style="top: ${topPosition}px; 
-                  height: ${totalHeight}px; 
-                  ${continuesBefore ? "border-top: 2px dashed rgba(255,255,255,0.5); border-top-left-radius: 0; border-top-right-radius: 0;" : ""}
-                  ${continuesAfter ? "border-bottom: 2px dashed rgba(255,255,255,0.5); border-bottom-left-radius: 0; border-bottom-right-radius: 0;" : ""}"
-           data-task-id="${this.$taskId}">
-        <div class="fw-bold">${this.$taskName} ${continuesBefore ? '<i class="bi bi-arrow-up-short"></i>' : ""}</div>
-        <small>${displayStart.getHours()}:00 - ${taskEnd > nextDay ? "Midnight" : displayEnd.getHours() + ":00"}</small>
+      <div class="calendar-event ${this.$colorCode} ${overlapClass}"
+           style="top:${topPosition}px;height:${totalHeight}px;
+           ${continuesBefore ? "border-top:2px dashed rgba(255,255,255,.5);" : ""}
+           ${continuesAfter ? "border-bottom:2px dashed rgba(255,255,255,.5);" : ""}"
+           data-task-id="${this.$taskId}"
+           data-title="${this.$taskName}"
+           data-desc="${this.$taskDesc || ""}"
+           data-loc="${this.$taskLocation || ""}">
+        <div class="fw-bold">
+          ${this.$taskName}
+          ${continuesBefore ? '<i class="bi bi-arrow-up-short"></i>' : ""}
+        </div>
+        <small>
+          ${displayStart.getHours()}:00 -
+          ${taskEnd > nextDay ? "Midnight" : displayEnd.getHours() + ":00"}
+        </small>
         ${continuesAfter ? '<div class="text-end"><i class="bi bi-arrow-down-short"></i></div>' : ""}
       </div>
     `;
   }
 }
 
-// ================================================
 const colorCode = [
   { cssSelector: "bg-google-blue", name: "Blue (Default)", hex: "#039be5" },
   { cssSelector: "bg-google-lavender", name: "Lavender", hex: "#7986cb" },
@@ -113,5 +116,4 @@ const colorCode = [
   { cssSelector: "bg-google-graphite", name: "Graphite", hex: "#616161" },
 ];
 
-// ================================================
 export { User, Task, colorCode };

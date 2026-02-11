@@ -1,18 +1,30 @@
 import { db } from "./firebase_config.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { addDoc, collection } from
   "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-// ==================================== //
-function getParam(name) {
-  return new URLSearchParams(window.location.search).get(name);
-}
-
-const hourParam = getParam("hour");
+import {
+  getAuth,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 // ==================================== //
+const auth = getAuth();
+
 const form = document.getElementById("eventForm");
 const cancelBtn = document.getElementById("cancelBtn");
+
+let currentUID = null;
+
+// ==================================== //
+// LẤY UID CHẮC CHẮN (kể cả khi localStorage rỗng)
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUID = user.uid;
+    localStorage.setItem("uid", user.uid); // backup cho mấy trang khác
+  } else {
+    currentUID = null;
+  }
+});
 
 // ==================================== //
 form.addEventListener("submit", async (e) => {
@@ -21,27 +33,33 @@ form.addEventListener("submit", async (e) => {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("description").value.trim();
   const locationText = document.getElementById("location").value.trim();
+  const startDate = document.getElementById("startDate").value;
+  const endDate = document.getElementById("endDate").value;
 
-  if (!title) {
-    alert("Nhập tiêu đề công việc");
+  const color = document.querySelector(
+    'input[name="eventColor"]:checked'
+  )?.value || "bg-google-blue";
+
+  if (!title || !startDate || !endDate) {
+    alert("Nhập đầy đủ thông tin");
     return;
   }
 
-  const uid = localStorage.getItem("uid");
-  if (!uid) {
-    alert("chưa đăng nhập ");
+  if (!currentUID) {
+    alert("chưa đăng nhập");
     window.location.href = "../signin.html";
     return;
   }
 
   try {
     await addDoc(collection(db, "tasks"), {
-      title,
-      description,
-      location: locationText,
-      hour: hourParam || null,
-      userId: uid,
-      createdAt: Date.now()
+      created_by: currentUID,
+      taskName: title,
+      taskDesc: description,
+      taskLocation: locationText,
+      startDate,
+      endDate,
+      colorCode: color,
     });
 
     alert("Đã lưu công việc ✅");

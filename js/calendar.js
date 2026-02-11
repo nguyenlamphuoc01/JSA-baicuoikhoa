@@ -1,5 +1,13 @@
-import { colorCode, Task } from "./entities.js";  
+import { colorCode, Task } from "./entities.js";
 import { db } from "./firebase_config.js";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const items = document.querySelectorAll("#timeList .list-group-item");
 // ==========================================
@@ -15,12 +23,12 @@ function updateDateDisplay() {
 function changeDate(days) {
   currentDate.setDate(currentDate.getDate() + days);
   updateDateDisplay();
-  // Here you would typically fetch new data for this specific date
+  renderTasksForDay(currentDate);
 }
-
 function goToToday() {
-  currentDate = new Date(); // Real today
+  currentDate = new Date();
   updateDateDisplay();
+  renderTasksForDay(currentDate);
 }
 
 // ================================================
@@ -62,12 +70,14 @@ if (location.href.includes("add_event")) {
       "bg-google-purple",
     );
     setEditMode(longTask);
-    // TODO 
+    // TODO
   }
 } else {
   // ================================================
   // TRANG INDEX
   // Populate time labels 12AM to 11PM
+  updateDateDisplay();
+  renderTasksForDay(currentDate);
   const timeLabels = document.getElementById("timeLabels");
   for (let i = 0; i < 24; i++) {
     const hour =
@@ -83,22 +93,40 @@ if (location.href.includes("add_event")) {
 
   // ================================================
   // kiem tra nguoi dung click vao lich
-  document
-    .getElementById("events-column")
-    ?.addEventListener("click", async function (event) {
-      const target = event.target.closest(".calendar-event");
-      // kiem tra nếu người dùng bấm vào task (event) -> chuyển đến edit task
-      if (target) {
-        location.href = "../pages/add_event.html?taskId=" + target.dataset.id;
-      } else {
-        // bấm ngoài khoảng không -> tạo mới task
-        location.href = "../pages/add_event.html?taskId=null";
-      }
-    });
+  document.getElementById("events-column")?.addEventListener("click", (e) => {
+    const eventEl = e.target.closest(".calendar-event");
+
+    // ✅ CLICK VÀO EVENT → MỞ POPUP
+    if (eventEl) {
+      document.getElementById("taskTitle").innerText = eventEl.dataset.title;
+      document.getElementById("taskDesc").innerText =
+        eventEl.dataset.desc || "Không có mô tả";
+      document.getElementById("taskLoc").innerText =
+        eventEl.dataset.loc || "Không có địa điểm";
+
+      document.getElementById("deleteBtn").dataset.taskId =
+        eventEl.dataset.taskId;
+
+      new bootstrap.Modal(document.getElementById("taskModal")).show();
+      return;
+    }
+
+    // ✅ CLICK KHOẢNG TRẮNG → ADD EVENT
+    window.location.href = "../pages/add_event.html";
+  });
 
   // ================================================
   // hien thi event cua tai khoan
 }
+document.getElementById("deleteBtn")?.addEventListener("click", async () => {
+  const taskId = document.getElementById("deleteBtn").dataset.taskId;
+  if (!taskId) return;
+
+  if (!confirm("Xoá công việc này?")) return;
+
+  await deleteDoc(doc(db, "tasks", taskId));
+  location.reload();
+});
 
 // =======================================================
 function setEditMode(task) {
@@ -118,4 +146,34 @@ function setEditMode(task) {
     `input[name="eventColor"][value="${task.colorCode}"]`,
   );
   if (radio) radio.checked = true;
+}
+async function renderTasksForDay(date) {
+  const uid = localStorage.getItem("uid");
+  if (!uid) return;
+
+  const eventsColumn = document.getElementById("events-column");
+  if (!eventsColumn) return;
+
+  eventsColumn.innerHTML = "";
+
+  const q = query(collection(db, "tasks"), where("created_by", "==", uid));
+
+  const snap = await getDocs(q);
+
+  snap.forEach((docSnap) => {
+    const d = docSnap.data();
+    const task = new Task(
+      docSnap.id,
+      d.created_by,
+      d.taskName,
+      d.taskDesc,
+      d.taskLocation,
+      d.startDate,
+      d.endDate,
+      d.colorCode,
+    );
+
+    const html = task.toUIHTMLTag(date);
+    if (html) eventsColumn.innerHTML += html;
+  });
 }
