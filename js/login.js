@@ -14,6 +14,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { User } from "./entities.js";
 
+// ====================== AUTH GUARD ======================
+const currentUserID = localStorage.getItem("currentUserID");
+if (currentUserID) {
+  // đã đăng nhập -> chuyển sang trang chính
+  location.href = "../index.html";
+}
+
+
 // ====================== SIGNUP ======================
 const signupForm = document.getElementById("signup-form");
 

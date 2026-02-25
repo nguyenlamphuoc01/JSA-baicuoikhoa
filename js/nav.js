@@ -15,7 +15,7 @@ const logoutBtn = document.getElementById("logout-btn");
 if (!currentUserID) {
   // chua dang nhap
   // chuyen sang trang signin
-  location.href = "../pages/signin.html";
+  location.href = "./pages/signin.html";
 } else {
   // da dang nhap
   // lay ten nguoi dung hien thi (Firestore)
